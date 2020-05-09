@@ -5,7 +5,7 @@ def question_1():
     for example, if you think option c is the correct answer,
     return 'c'
     '''
-    raise NotImplemented
+    return 'b'
 
 def question_2():
     '''
@@ -14,7 +14,7 @@ def question_2():
     for example, if you think option c is the correct answer,
     return 'c'
     '''
-    raise NotImplemented
+    return 'a'
 
 def question_3():
     '''
@@ -23,7 +23,7 @@ def question_3():
     for example, if you think option c is the correct answer,
     return 'c'
     '''
-    raise NotImplemented
+    return 'a'
 
 def question_4():
     '''
@@ -32,7 +32,7 @@ def question_4():
     for example, if you think option c is the correct answer,
     return 'c'
     '''
-    raise NotImplemented
+    return 'a'
 
 def question_5():
     '''
@@ -41,4 +41,4 @@ def question_5():
     for example, if you think option c is the correct answer,
     return 'c'
     '''
-    raise NotImplemented
+    return 'c'

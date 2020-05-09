@@ -22,11 +22,11 @@ class Linear():
         self.b = bias_init_fn(out_feature)
 
         # TODO: Complete these but do not change the names.
-        self.dW = np.zeros(None)
-        self.db = np.zeros(None)
+        self.dW = np.zeros((in_feature, out_feature))
+        self.db = np.zeros((1, out_feature))
 
-        self.momentum_W = np.zeros(None)
-        self.momentum_b = np.zeros(None)
+        self.momentum_W = np.zeros((in_feature, out_feature))
+        self.momentum_b = np.zeros((1, out_feature))
 
     def __call__(self, x):
         return self.forward(x)
@@ -38,7 +38,8 @@ class Linear():
         Return:
             out (np.array): (batch size, out feature)
         """
-        raise NotImplemented
+        self.x = x
+        return np.dot(x, self.W) + self.b
 
     def backward(self, delta):
 
@@ -48,4 +49,9 @@ class Linear():
         Return:
             out (np.array): (batch size, in feature)
         """
-        raise NotImplemented
+        # TODO: why divide by batch size?
+        bs = delta.shape[0]
+        self.dW = np.dot(delta.T, self.x).T / bs
+        self.db = np.mean(delta, axis=0, keepdims=True)
+
+        return np.dot(delta, self.W.T)

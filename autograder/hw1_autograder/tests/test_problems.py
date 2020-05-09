@@ -149,8 +149,6 @@ def test_softmax_cross_entropy_derivative():
     closeness_test(ce.derivative(), sol, "ce.derivative()")
 
 
-
-
 def test_batch_norm_train():
     data = saved_data[19]
     assert len(data) == 10
@@ -213,7 +211,6 @@ def test_batch_norm_inference():
         student = mlp.forward(xs[b:b + batch_size])
         ground = solground[b//batch_size]
         closeness_test(student, ground, "mlp.forward(x)")
-
 
 
 def test_linear_layer_forward():

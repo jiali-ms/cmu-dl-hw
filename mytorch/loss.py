@@ -48,7 +48,11 @@ class SoftmaxCrossEntropy(Criterion):
         self.logits = x
         self.labels = y
 
-        raise NotImplemented
+        max_x = np.max(x)
+        exps = np.exp(x-max_x)
+        self.y_hat = exps / np.sum(exps, axis=-1, keepdims=True)
+        self.loss = np.sum(-y * np.log(self.y_hat), axis=-1)
+        return self.loss
 
     def derivative(self):
         """
@@ -56,4 +60,4 @@ class SoftmaxCrossEntropy(Criterion):
             out (np.array): (batch size, 10)
         """
 
-        raise NotImplemented
+        return self.y_hat - self.labels

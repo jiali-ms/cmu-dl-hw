@@ -27,6 +27,10 @@ import os
 import sys
 
 sys.path.append('mytorch')
+cur_dir = os.path.dirname(os.path.realpath(__file__))
+# include parent folder
+sys.path.insert(0, os.path.join(cur_dir, '../mytorch'))
+
 from loss import *
 from activation import *
 from batchnorm import *
@@ -62,12 +66,15 @@ class MLP(object):
         # Initialize and add all your linear layers into the list 'self.linear_layers'
         # (HINT: self.foo = [ bar(???) for ?? in ? ])
         # (HINT: Can you use zip here?)
-        self.linear_layers = None
+
+        all_sizes = [self.input_size] + hiddens + [self.output_size]
+        self.linear_layers = [Linear(all_sizes[x], all_sizes[x+1], weight_init_fn, bias_init_fn) for x in range(self.nlayers)]
 
         # If batch norm, add batch norm layers into the list 'self.bn_layers'
         if self.bn:
-            self.bn_layers = None
-
+            self.bn_layers = [BatchNorm(all_sizes[x+1]) for x in range(self.nlayers)]
+        else:
+            self.bn_layers = [None for x in range(self.nlayers)]
 
     def forward(self, x):
         """
@@ -76,13 +83,26 @@ class MLP(object):
         Return:
             out (np.array): (batch size, output_size)
         """
+
         # Complete the forward pass through your entire MLP.
-        raise NotImplemented
+        self.batch_size = x.shape[0]
+        self.out = x
+
+        for linear, activation, bn in zip(self.linear_layers, self.activations, self.bn_layers):
+            if bn:
+                self.out = activation(bn(linear(self.out)))
+            else:
+                self.out = activation(linear(self.out))
+
+        return self.out
 
     def zero_grads(self):
         # Use numpyArray.fill(0.0) to zero out your backpropped derivatives in each
         # of your linear and batchnorm layers.
-        raise NotImplemented
+        for i in range(len(self.linear_layers)):
+            linear = self.linear_layers[i]
+            linear.dW.fill(0.0)
+            linear.db.fill(0.0)
 
     def step(self):
         # Apply a step to the weights and biases of the linear layers.
@@ -91,18 +111,25 @@ class MLP(object):
         # , not the batchnorm layers)
 
         for i in range(len(self.linear_layers)):
-            # Update weights and biases here
-            pass
+            linear = self.linear_layers[i]
+            linear.W -= linear.dW * self.lr
+            linear.b -= linear.db * self.lr
         # Do the same for batchnorm layers
-
-        raise NotImplemented
 
     def backward(self, labels):
         # Backpropagate through the activation functions, batch norm and
         # linear layers.
         # Be aware of which return derivatives and which are pure backward passes
         # i.e. take in a loss w.r.t it's output.
-        raise NotImplemented
+        loss = self.criterion(self.out, labels)
+        delta = self.criterion.derivative()
+        # delta = labels
+        for linear, activation, bn in zip(self.linear_layers[::-1], self.activations[::-1], self.bn_layers[::-1]):
+            if bn:
+                delta = linear.backward(bn.backward(activation.derivative()*delta))
+            else:
+                delta = linear.backward(activation.derivative()*delta)
+        return delta
 
     def error(self, labels):
         return (np.argmax(self.output, axis = 1) != np.argmax(labels, axis = 1)).sum()
