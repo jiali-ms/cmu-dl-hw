@@ -73,13 +73,15 @@ class BatchNorm(object):
         # B x I
         m = self.x.shape[0]
 
-        self.dbeta = np.mean(delta, axis=0, keepdims=True)
-        self.dgamma = np.mean(delta * self.norm, axis=0, keepdims=True)
-
         dnorm = delta * self.gamma
+
+
         dvar = -0.5 * np.sum((dnorm * (self.x - self.mean) * (self.var + self.eps) ** -1.5), axis=0)
         dmean = -np.sum(dnorm * (self.var + self.eps) ** -0.5, axis=0) - 2 / m * dvar * np.sum(self.x - self.mean, axis=0)
 
         dx = dnorm * (self.var + self.eps) ** -0.5 + dvar * 2 * (self.x - self.mean) / m + dmean / m
+
+        self.dbeta = np.mean(delta, axis=0, keepdims=True)
+        self.dgamma = np.mean(delta * self.norm, axis=0, keepdims=True)
 
         return dx

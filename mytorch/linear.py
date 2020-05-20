@@ -49,7 +49,6 @@ class Linear():
         Return:
             out (np.array): (batch size, in feature)
         """
-        # TODO: why divide by batch size?
         bs = delta.shape[0]
         self.dW = np.dot(delta.T, self.x).T / bs
         self.db = np.mean(delta, axis=0, keepdims=True)

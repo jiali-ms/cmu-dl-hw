@@ -126,7 +126,7 @@ class MLP(object):
         # delta = labels
         for linear, activation, bn in zip(self.linear_layers[::-1], self.activations[::-1], self.bn_layers[::-1]):
             if bn:
-                delta = linear.backward(bn.backward(activation.derivative()*delta))
+                delta = linear.backward(bn.backward(activation.derivative()*delta * self.batch_size))
             else:
                 delta = linear.backward(activation.derivative()*delta)
         return delta
